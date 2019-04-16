@@ -17,14 +17,14 @@ c = crsp.crsp(beginyear, endyear, month, 'crsp')
 
 # read in and split
 # total # of rows: 17614314
-for n in range(2,4):
+for n in range(0,10):
 	b = time.time()
 	data = pd.read_csv(datapath_crsp, skiprows=range(1,n*10000), nrows=10000)
 	c.split(data, append = False)
 	# export csv
 	c.export()
 	e = time.time()
-	print('processing time: ', e-b)
+	print(' '.join(['processing time' ,'{y}: {m}']).format(y=n,m=e-b))
 
 # merge with splist and 
 c.allmerge(pd.read_csv(datapath_sp), 'left', 'PERMNO')
