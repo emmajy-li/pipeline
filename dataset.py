@@ -35,16 +35,22 @@ class dataset:
 		filename = self.getfilename(y, m)
 		return(self.d[filename])
 
-	def split(self, data):
+	def split(self, data, append):
 		dt = data.applymap(str)
 		for y in range(self.start, self.end+1):
 			if self.month==0:
 				for m in range(1,13):
 					filename=self.getfilename(y, m)
-					self.d[filename]=self.d[filename].append(dt.loc[dt['date'].str.startswith(filename[len(filename)-6:])])
+					if append == True:
+						self.d[filename]=self.d[filename].append(dt.loc[dt['date'].str.startswith(filename[len(filename)-6:])])
+					else:
+						self.d[filename]=dt.loc[dt['date'].str.startswith(filename[len(filename)-6:])]
 			else:
 				filename = self.getfilename(y, self.month)
-				self.d[filename]=self.d[filename].append(dt.loc[dt['date'].str.startswith(filename[len(filename)-6:])])
+				if append == True:
+					self.d[filename]=self.d[filename].append(dt.loc[dt['date'].str.startswith(filename[len(filename)-6:])])
+				else:
+					self.d[filename]=dt.loc[dt['date'].str.startswith(filename[len(filename)-6:])]
 
 	def allmerge(self, data, how='left', key=None, left_on=None, right_on=None):
 		for y in range(self.start, self.end+1):

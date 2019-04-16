@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import time
 import csv
 import crsp
 import master
@@ -7,7 +8,7 @@ import master
 # input
 beginyear = 2008
 endyear = 2018
-month = 0 # if all month then 0
+month = 2 # if all month then 0
 datapath_crsp = 'crsp_10yr.csv'
 datapath_sp = 'sp500list_201502.csv'
 
@@ -16,9 +17,14 @@ c = crsp.crsp(beginyear, endyear, month, 'crsp')
 
 # read in and split
 # total # of rows: 17614314
-for n in range(0,1762):
-		data = pd.read_csv(datapath_crsp, skiprows=range(1,n*10000), nrows=10000)
-		c.split(data)
+for n in range(2,4):
+	b = time.time()
+	data = pd.read_csv(datapath_crsp, skiprows=range(1,n*10000), nrows=10000)
+	c.split(data, append = False)
+	# export csv
+	c.export()
+	e = time.time()
+	print('processing time: ', e-b)
 
 # merge with splist and 
 c.allmerge(pd.read_csv(datapath_sp), 'left', 'PERMNO')
@@ -45,9 +51,6 @@ for y in range(beginyear, endyear+1):
 
 # print head and shape of data
 c.print(2008,2)
-
-# export csv
-c.export()
 
 # test
 
