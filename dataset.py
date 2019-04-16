@@ -1,4 +1,5 @@
 import pandas as pd 
+import numpy as np
 
 class dataset:
 
@@ -37,17 +38,18 @@ class dataset:
 
 	def split(self, data, append):
 		dt = data.applymap(str)
+		self.append = append
 		for y in range(self.start, self.end+1):
 			if self.month==0:
 				for m in range(1,13):
 					filename=self.getfilename(y, m)
-					if append == True:
+					if self.append == True:
 						self.d[filename]=self.d[filename].append(dt.loc[dt['date'].str.startswith(filename[len(filename)-6:])])
 					else:
 						self.d[filename]=dt.loc[dt['date'].str.startswith(filename[len(filename)-6:])]
 			else:
 				filename = self.getfilename(y, self.month)
-				if append == True:
+				if self.append == True:
 					self.d[filename]=self.d[filename].append(dt.loc[dt['date'].str.startswith(filename[len(filename)-6:])])
 				else:
 					self.d[filename]=dt.loc[dt['date'].str.startswith(filename[len(filename)-6:])]
@@ -57,27 +59,20 @@ class dataset:
 			if self.month==0:
 				for m in range(1,13):
 					filename=self.getfilename(y, m)
-					self.d[filename]=self.d[filename].merge(right=dt, how=how, on=key, left_on=left_on, right_on=right_on)
+					self.d[filename]=self.d[filename].merge(right=data, how=how, on=key, left_on=left_on, right_on=right_on)
 			else:
 				filename = self.getfilename(y, self.month)
-				self.d[filename]=self.d[filename].merge(right=dt, how=how, on=key, left_on=left_on, right_on=right_on)
+				self.d[filename]=self.d[filename].merge(right=data, how=how, on=key, left_on=left_on, right_on=right_on)
 
 	def onemerge(self, data, y, m, how='left', key=None, left_on=None, right_on=None):
 		filename = self.getfilename(y, m)
 		self.d[filename]=self.d[filename].merge(right=data, how=how, on=key, left_on=left_on, right_on=right_on)
 
-	def addsp(self):
-		for y in range(self.start, self.end+1):
-			if self.month==0:
-				for m in range(1,13):
-					filename=self.getfilename(y, m)
-					cond = (self.d[filename]['date']>=self.d[filename]['start']) & (self.d[filename]['date']<=self.d[filename]['ending'])
-					self.d[filename]['sp'] = np.where(cond, 1, 0)
-			else:
-				filename=self.getfilename(y, self.month)
-				cond = (self.d[filename]['date']>=self.d[filename]['start']) & (self.d[filename]['date']<=self.d[filename]['ending'])
-				self.d[filename]['sp'] = np.where(cond, 1, 0)
-
+	def addsp(self, y, m):
+		filename=self.getfilename(y, m)
+		cond = (self.d[filename]['date'] >= self.d[filename]['start']) & (self.d[filename]['date']<=self.d[filename]['ending'])
+		self.d[filename]['sp'] = np.where(cond, 1, 0)
+		
 	def export(self):
 		for y in range(self.start, self.end+1):
 			if self.month==0:
