@@ -41,6 +41,9 @@ for y in range(beginyear, endyear+1):
 		c.addsp(y, month) # add sp indicator
 		c.export()
 
+# check if readdata problem still exists
+# pandas.errors.ParserError: Error tokenizing data. C error: Expected 63 fields in line 2059, saw 67
+
 # part II: merge with master
 # initialization
 # mst = master.master(beginyear, endyear, month, 'master')

@@ -30,6 +30,7 @@ class dataset:
 	
 	def readdata(self, year, month):
 		filename=self.getfilename(year, month)
+		self.d[filename] = pd.DataFrame()
 		self.d[filename] = pd.read_csv('.'.join([filename, 'csv']))
 
 	def returndata(self, y, m):
