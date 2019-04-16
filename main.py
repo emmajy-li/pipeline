@@ -48,3 +48,18 @@ c.print(2008,2)
 
 # export csv
 c.export()
+
+# test
+
+# import pandas as pd
+# import numpy as np
+# import csv
+# import crsp
+
+# beginyear = 2011
+# endyear = 2011
+# month = 2
+# master_prefix = 'master_combined'
+# datapath_crsp = 'crsp_201102.csv'
+# c = crsp.crsp(beginyear, endyear, month, 'crsp')
+# c.readdata(beginyear, month)
