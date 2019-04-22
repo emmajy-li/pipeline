@@ -59,6 +59,23 @@ class dataset:
 					self.d[filename]=dt.loc[dt['date'].str.startswith(filename[len(filename)-6:])]
 		pass
 
+	def parsedSplitandExport(self, datapath, n):
+		for n in range(0,n): 
+			data = pd.read_csv(datapath, skiprows=range(1,n*10000), nrows=10000) # read in data
+			self.splitdata(data=data, append=False) # split data
+			if n == 0:
+				self.exportall(option='a', header=True) # export data with header
+			else:
+				self.exportall(option='a', header=False) # export data without header
+			if n%100 ==0:
+				print('n = ', n) 
+			pass
+
+	def bulkSplitandExport(self, data):
+		self.splitdata(data=data, append=False)
+		self.exportall(option='a', header=True)
+		pass
+			
 	def mergedata(self, data, y, m, how='left', key=None, left_on=None, right_on=None):
 		filename = self.getfilename(y, m)
 		self.d[filename]=self.d[filename].merge(right=data, how=how, on=key, left_on=left_on, right_on=right_on)
@@ -77,7 +94,7 @@ class dataset:
 
 	def checkspdup(self, y, m):
 		filename=self.getfilename(y, m)
-		if self.d[filename][self.d[filename].duplicated(list(self.d[filename].columns)[:-1])].empty:
+		if self.d[filename][self.d[filename].duplicated(list(self.d[filename].columns)[:-1])].empty: # to be tested
 			print("No Duplication")
 		else: # to be tested
 			print('Duplicates', self.d[filename][self.d[filename].duplicated(list(self.d[filename].columns)[:-1])].shape)
