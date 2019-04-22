@@ -18,7 +18,7 @@ sp_datapath = 'dsp500list.csv'
 # initialization
 c = crsp.crsp(beginyear, endyear, month, file='crsp')
 
-c.parsedSplitandExport(datapath=crsp_datapath, n=1762) # total # of rows: 17614314
+c.parsedSplitandExport(datapath=crsp_datapath, outputdir='', datecolname='date', totalrows=17614314, nrows=10000)
 
 # part II: merge with splist and add sp indicator
 # initialization
