@@ -1,84 +1,78 @@
 import pandas as pd
 import numpy as np
-import time
 import csv
+
+import sp
 import crsp
 import master
 
 # input
-beginyear = 2008
-endyear = 2018
-month = 0 # if all month then 0
-datapath_crsp = 'crsp_10yr.csv'
-datapath_sp = 'dsp500list.csv'
+beginyear = 2009
+endyear = 2010
+month = 2 # if all month then 0
 
-# part I: split crps and merge with splist
+crsp_datapath = 'crsp_10yr.csv'
+sp_datapath = 'dsp500list.csv'
+
+# part I: split crps
 # initialization
-c = crsp.crsp(beginyear, endyear, month, 'crsp')
+c = crsp.crsp(beginyear, endyear, month, file='crsp')
 
-# read in and split
-# total # of rows: 17614314
-for n in range(0,10):
-	b = time.time()
-	data = pd.read_csv(datapath_crsp, skiprows=range(1,n*10000), nrows=10000)
-	c.splitdata(data, append = False)
+for n in range(0,10): # total # of rows: 17614314
+	crsp_data = pd.read_csv(crsp_datapath, skiprows=range(1,n*10000), nrows=10000) # read in data
+	c.splitdata(data=data, append=False) # split data
 	if n == 0:
-	    c.exportall('a', True) # export csv with header
+	    c.exportall(option='a', header=True) # export data with header
 	else:
-		c.exportall('a', False) # export csv without header
-	e = time.time()
+		c.exportall(option='a', header=False) # export data without header
 	if n%100 ==0:
-		print(' '.join(['processing time' ,'{y}: {m}']).format(y=n,m=e-b))
+		print('n = ', n) 
 
-# merge with splist and add sp indicator
-sp = pd.read_csv(datapath_sp)
-sp['sm']=(sp['start']/100).astype(int)
-sp['em']=(sp['ending']/100).astype(int)
+# part II: merge with splist and add sp indicator
+# initialization
+s = sp.sp(beginyear, endyear, month, file='sp')
+
+sp_data = pd.read_csv(sp_datapath) # read in data
+s.extractym(data=sp_data, extractcolname='start', newcolname='sm') # extract month
+s.extractym(data=sp_data, extractcolname='ending', newcolname='em') # extract month
 
 for y in range(beginyear, endyear+1):
 	if month==0:
 		for m in range(1,13):
-			sp_ = sp.loc[(sp['sm'] <= y*100+m) & (sp['em'] >= y*100+m)] 
-			sp_ = sp_.astype(object)
-			c.readdata(y, m)
-			c.mergedata(sp_, y, m, how='left', key='PERMNO')
-			c.addsp(y, m)
-			c.dropcol(list(c.returndata(y, m).columns)[0:2]+list(c.returndata(y, m).columns)[-5:-1], y, m)
-			c.checkdup(y, m)
-			c.export('w', y, m, True)
+			c.readdata(y=y, m=m)
+			c.mergedata(data=s.TimeIntervalIndexing(y, m), y=y, m=m, how='left', key='PERMNO')
+			c.addsp(y=y, m=m)
+			c.dropcol(col=list(c.returndata(y, m).columns)[0:2]+list(c.returndata(y, m).columns)[-5:-1], y=y, m=m)
+			c.checkspdup(y=y, m=m)
+			c.export(option='w', y=y, m=m, header=True)
 	else:
 		print('y: ', y)
-		sp_ = sp.loc[(sp['sm'] <= y*100+month) & (sp['em'] >= y*100+month)] 
-		sp_ = sp_.astype(object)
-		c.readdata(y, month)
-		c.mergedata(sp_, y, month, how='left', key='PERMNO')
-		c.addsp(y, month)
-		c.dropcol(list(c.returndata(y, month).columns)[0:2]+list(c.returndata(y, month).columns)[-5:-1], y, month)
-		c.checkdup(y, month)
-		c.export('w', y, month, True)
+		c.readdata(y=y, m=month)
+		c.mergedata(data=s.TimeIntervalIndexing(y, month), y=y, m=month, how='left', key='PERMNO')
+		c.addsp(y=y, m=month)
+		c.dropcol(col=list(c.returndata(y, month).columns)[0:2]+list(c.returndata(y, month).columns)[-5:-1], y=y, m=month)
+		c.checkspdup(y=y, m=month)
+		c.export(option='w', y=y, m=month, header=True)
 
-# part II: merge with master
+# part III: merge with master
 # initialization
-mst = master.master(beginyear, endyear, month, 'master')
+mst = master.master(beginyear, endyear, month, file='master')
 
-# merge with master on eight digit cusip
 for y in range(beginyear, endyear+1):
 	if month==0:
 		for m in range(1,13):
-			mst.readdata(y, m)
-			master_data = mst.returndata(y, m)
-			master_data['CUSIP_'] = [value[:8] for value in master_data['CUSIP']]
-			c.readdata(y, m)
-			c.mergedata(master_data, y, m, 'outer', left_on=['CUSIP','date'], right_on=['CUSIP_', 'DATE'])
-			c.export('a', y, m, True, 'combined_master_')
+			mst.readdata(y=y, m=m)
+			mst.add8CUSIP(y=y, m=m, newcolname='CUSIP_') # add eight digit cusip to master data
+			c.readdata(y=y, m=m)
+			c.mergedata(data=mst.returndata(y, m), y=y, m=m, how='outer', left_on=['CUSIP','date'], right_on=['CUSIP_', 'DATE'])
+			c.export(option='a', y=y, m=m, header=True, file='combined_master_')
 	else:
 		print("y: ", y)
-		mst.readdata(y, month)
-		master_data = mst.returndata(y, month)
-		master_data['CUSIP_'] = [value[:8] for value in master_data['CUSIP']]
-		c.readdata(y, month)
-		c.mergedata(master_data, y, month, 'outer', left_on=['CUSIP','date'], right_on=['CUSIP_', 'DATE'])
-		c.export('a', y, month, True, 'combined_master_')
+		mst.readdata(y=y, m=month)
+		mst.add8CUSIP(y=y, m=month, newcolname='CUSIP_') # add eight digit cusip to master data
+		c.readdata(y=y, m=month)
+		c.mergedata(data=mst.returndata(y, month), y=y, m=month, how='outer', left_on=['CUSIP','date'], right_on=['CUSIP_', 'DATE'])
+		c.export(option='a', y=y, m=month, header=True, file='combined_master_')
 
 # print head and shape of data
 # c.print(2008,2)
