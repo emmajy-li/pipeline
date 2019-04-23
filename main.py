@@ -10,11 +10,13 @@ beginyear = 2008
 endyear = 2017
 month = 0 # if all month then 0
 
-crsp10yr_inpath = '/Volumes/FD-CW/crsp_10yr.csv'
-sp_inpath = '/Volumes/FD-CW/dsp500list.csv'
+crsp10yr_inpath = '/Volumes/FD-CW/'
+crsp10yr_filename = 'crsp_10yr.csv'
+sp_inpath = '/Volumes/FD-CW/'
+sp_filename = 'dsp500list.csv'
 crsp_outpath = '/Volumes/FD-CW/crsp/'
-crsp_inpath = ''
-master_inpath = ''
+crsp_inpath = '/Volumes/FD-CW/crsp/'
+master_inpath = '/⁨Dropbox⁩/⁨invariance-cw⁩/⁨data⁩'
 
 # crsp_inpath = 'crsp_10yr.csv'
 # sp_inpath = 'dsp500list.csv'
@@ -26,27 +28,19 @@ master_inpath = ''
 # initialization
 c = crsp.crsp(beginyear, endyear, month, file='crsp')
 
-c.parsedSplitandExport(datapath=crsp10yr_inpath, outputdir=crsp_outpath, datecolname='date', totalrows=17614314, nrows=10000, timer=True)
+c.parsedSplitandExport(datapath=crsp10yr_inpath+crsp10yr_filename, outputdir=crsp_outpath, datecolname='date', totalrows=17614314, nrows=10000, timer=True)
 
 # part II: merge with splist and add sp indicator
 # initialization
 s = sp.sp(beginyear, endyear, month, file='sp')
 
-sp_data = pd.read_csv(sp_inpath) # read in data
+sp_data = pd.read_csv(sp_inpath+sp_filename) # read in data
 s.extractym(data=sp_data, extractcolname='start', newcolname='sm') # extract month
 s.extractym(data=sp_data, extractcolname='ending', newcolname='em') # extract month
 
 for y in range(beginyear, endyear+1):
 		if month==0:
-				for m in range(1,13):
-						c.readdata(datapath=crsp_inpath, y=y, m=month)
-						c.mergedata(data=s.TimeIntervalIndexing(y, m), y=y, m=m, how='left', key='PERMNO')
-						c.addsp(y=y, m=m)
-						c.dropcol(col=list(c.returndata(y, m).columns)[-5:-1], y=y, m=m)
-						c.checkspdup(y=y, m=m)
-						c.export(option='w', y=y, m=m, header=True)
-		else:
-				m = month
+			for m in range(1,13):
 				print('y: ', y)
 				c.readdata(datapath=crsp_inpath, y=y, m=month)
 				c.mergedata(data=s.TimeIntervalIndexing(y, m), y=y, m=m, how='left', key='PERMNO')
@@ -54,6 +48,15 @@ for y in range(beginyear, endyear+1):
 				c.dropcol(col=list(c.returndata(y, m).columns)[-5:-1], y=y, m=m)
 				c.checkspdup(y=y, m=m)
 				c.export(option='w', y=y, m=m, header=True)
+		else:
+			m = month
+			print('y: ', y)
+			c.readdata(datapath=crsp_inpath, y=y, m=month)
+			c.mergedata(data=s.TimeIntervalIndexing(y, m), y=y, m=m, how='left', key='PERMNO')
+			c.addsp(y=y, m=m)
+			c.dropcol(col=list(c.returndata(y, m).columns)[-5:-1], y=y, m=m)
+			c.checkspdup(y=y, m=m)
+			c.export(option='w', y=y, m=m, header=True)
 
 # part III: merge with master
 # initialization
