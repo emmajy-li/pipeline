@@ -21,8 +21,7 @@ class sp(wrdsdata):
 
 	def TimeIntervalIndexing(self, y, m):
 		sp_tomerge = self.spdata.loc[(self.spdata['sm'] <= y*100+m) & (self.spdata['em'] >= y*100+m)]
-		return(sp_tomerge.astype(object))
+		return(sp_tomerge)
 
-
-
-
+	def returndata(self):
+		return(self.spdata)
