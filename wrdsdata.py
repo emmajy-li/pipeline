@@ -22,7 +22,10 @@ class wrdsdata:
 		self.initDataFrame()
 		pass
 
-	def getfilename(self, y, m):
+	def __getfilename__(self, y, m):
+		"""
+
+		"""
 		if m < 10:
 			filename='_'.join([self.file,'{y}0{m}']).format(y=y,m=m)
 		else:
@@ -71,7 +74,7 @@ class wrdsdata:
 					self.d[filename]=dt.loc[dt[datecolname].str.startswith(filename[len(filename)-6:])]
 		pass
 
-	def parsedSplitandExport(self, datapath, outputdir, datecolname, totalrows, nrows, timer):
+	def parsedSplitandExport(self, datapath, outputdir, datecolname, totalrows, batchsize, timer):
 		"""
 		The function to split and export a big dataset as monthly data.
 
@@ -83,17 +86,17 @@ class wrdsdata:
 			outputdir (str): The directory of the output csv file
 			datacolname (str): The column name of the dataset with date input
 			totalrows (int): The number of rows of the dataset
-			nrows (int): The number of rows to read in each time
+			batchsize (int): The number of rows to read in each time
 			timer (bool): The report of processing time of one batch for every one hundred batches
 
 		Returns:
 			funtion outputs csv files, but has no return.
 
 		"""
-		for n in range(0, int(totalrows/nrows)+1): 
+		for n in range(0, int(totalrows/batchsize)+1): 
 			if timer == True:
 				b = time.time()
-			data = pd.read_csv(datapath, skiprows=range(1,n*nrows), nrows=nrows) # read in data
+			data = pd.read_csv(datapath, skiprows=range(1,n*batchsize), nrows=batchsize) # read in data
 			self.splitdata(data=data, datecolname=datecolname, append=False) # split data # to change
 			if n == 0:
 				self.exportall(option='a',outputdir=outputdir, header=True) # export data with header
@@ -104,7 +107,8 @@ class wrdsdata:
 			if n%100 ==0:
 				print('current batch is', n)
 				if timer == True:
-					print('processing time for {s} rows in current batch:'.format(s=nrows), e-b) 
+					print('processing time for {a} rows in No.{b} batch is {c} seconds. Current time is {d}.'\
+						.format(a=batchsize, b=n, c=e-b, d=e)) 
 			pass
 
 	def bulkSplitandExport(self, data, datecolname):
@@ -127,18 +131,19 @@ class wrdsdata:
 		filename=self.getfilename(y, m)
 		self.d[filename] = self.d[filename].drop(col, axis = 1)
 		pass
+		
+	def changecolname(self, old, new, y, m):
+		filename=self.getfilename(y, m)
+		self.d[filename].rename(columns={old:new}, inplace=True)
+		pass
 
 	def checkspdup(self, y, m):
 		filename=self.getfilename(y, m)
 		if self.d[filename][self.d[filename].duplicated(list(self.d[filename].columns)[:-1])].empty:
 			print("No Duplication")
 		else:
-			print('Duplicates', self.d[filename][self.d[filename].duplicated(list(self.d[filename].columns)[:-1])].shape)
-			print('Pre-Data', self.d[filename][self.d[filename].duplicated(list(self.d[filename].columns)[:-1])].shape)
-			self.d[filename] = self.d[filename].groupby(list(self.d[filename].columns)[:-1], as_index=False)['sp'].sum()
-			print('Post-Data', self.d[filename][self.d[filename].duplicated(list(self.d[filename].columns)[:-1])].shape)
-			if self.d[filename]['sp'] > 1:
-				raise ValueError('sp indicator should not be less than 1!')
+			print('Special Attention is Needed for Duplicates! \n')
+			print(self.d[filename][self.d[filename].duplicated(list(self.d[filename].columns)[:-1])])
 		pass
 
 	def exportall(self, option, outputdir, header):
@@ -155,13 +160,13 @@ class wrdsdata:
 					self.d[filename].to_csv(csvFile, header=header, index=False)
 		pass
 
-	def export(self, option, y, m, header, file=None):
+	def export(self, option, y, m, outputdir, header, file=None):
 		filename=self.getfilename(y, m)
 		if file != None:
-			with open(file + filename +'.csv', option) as csvFile:
+			with open(outputdir+file + filename +'.csv', option) as csvFile:
 				self.d[filename].to_csv(csvFile, header=header, index=False)
 		else:
-			with open(filename +'.csv', option) as csvFile:
+			with open(outputdir+filename +'.csv', option) as csvFile:
 				self.d[filename].to_csv(csvFile, header=header, index=False)
 		pass
 
