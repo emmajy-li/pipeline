@@ -1,6 +1,15 @@
 from wrdsdata import wrdsdata
 
 class sp(wrdsdata):
+	"""
+	This is a class inherited from class wrds to process s&p500 data, s&p500 list.
+
+	Args: 
+           startyear (int): The startyear of the desired output data.
+           endyear (int): The endyear of the desired output data.
+           month (int): The month of the desired output data; 0 means every month.
+           file (str): the file name of the desired output data.
+	"""
 	def __init__(self, startyear, endyear, month, file):
 		"""
 		The constructor for sp class.
@@ -10,9 +19,6 @@ class sp(wrdsdata):
            endyear (int): The endyear of the desired output data.
            month (int): The month of the desired output data; 0 means every month.
            file (str): the file name of the desired output data.
-
-        Returns:
-        	no returns.
 		"""
 		wrdsdata.__init__(self, startyear, endyear, month, file)
 		pass

@@ -6,7 +6,7 @@ import crsp
 import master
 
 # input
-beginyear = 2011
+beginyear = 2017
 endyear = 2017
 month = 0 # if all month then 0
 

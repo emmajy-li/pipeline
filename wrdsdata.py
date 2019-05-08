@@ -3,6 +3,15 @@ import numpy as np
 import time
 
 class wrdsdata:
+	"""
+	This is a class for processing data downloaded from wrds database.
+
+	Args:
+		startyear (int): The startyear of the desired output data. 
+        endyear (int): The endyear of the desired output data.
+        month (int): The month of the desired output data; 0 means every month.
+        file (str): the file name of the desired output data.
+	"""
 
 	def __init__(self, startyear, endyear, month, file):
 		"""
@@ -27,7 +36,6 @@ class wrdsdata:
 
 	def _getfilename(self, y, m):
 		"""
-
 		The private function to get name of the stored data with specific timestamp, 
 		defined by year and month.
 
@@ -80,7 +88,7 @@ class wrdsdata:
 		"""
 		filename=self._getfilename(y, m)
 		self.d[filename] = pd.DataFrame()
-		self.d[filename] = pd.read_csv('.'.join([datapath+filename, 'csv']))
+		self.d[filename] = pd.read_csv('.'.join([datadir+filename, 'csv']))
 		pass
 
 	def returndata(self, y, m):
@@ -112,7 +120,6 @@ class wrdsdata:
 
 		Return:
 			function changes data stored in dictionary, but produces no returns.	
-
 		"""
 		dt = data.applymap(str)
 		for y in range(self.start, self.end+1):
@@ -153,7 +160,6 @@ class wrdsdata:
 
 		Returns:
 			funtion outputs csv files, but has no return.
-
 		"""
 		for n in range(0, int(totalrows/batchsize)+1): 
 			if timer == True:
@@ -183,7 +189,7 @@ class wrdsdata:
 			timer (bool): The report of processing time of one batch for every one hundred batches.
 
 		Return:
-			no returns.
+			funtion outputs csv files, but has no return.
 		"""
 
 		if timer == True:
@@ -265,7 +271,7 @@ class wrdsdata:
 			m (int): The month of the data.
 		
 		Return:
-			no returns.	
+			function changes data stored in dictionary but with no returns.	
 		"""
 		filename=self._getfilename(y, m)
 		self.d[filename].rename(columns={old:new}, inplace=True)
@@ -281,7 +287,7 @@ class wrdsdata:
 			m (int): The month of the data.
 		
 		Return:
-			no returns.	
+			function produces on-screen message but with no returns.	
 		"""
 		filename=self._getfilename(y, m)
 		if self.d[filename][self.d[filename].duplicated(list(self.d[filename].columns)[:-1])].empty:
@@ -293,9 +299,16 @@ class wrdsdata:
 
 	def exportall(self, option, outputdir, header):
 		"""
+		The function to export all the data as csv stored in the dictionary.
+
+		Args:
+			option (str): The option of export. (Ref.)
+			outputdir (str): The directory to store the output data.
+			header (bool): The option to export header. 
+			Ref: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_csv.html
 		
 		Return:
-			no returns.	
+			function exports csv files but with no returns.	
 		"""
 		for y in range(self.start, self.end+1):
 			if self.month==0:
@@ -312,13 +325,20 @@ class wrdsdata:
 
 	def export(self, option, y, m, outputdir, header, file=None):
 		"""
+		The function to export data as csv with specific timestamp, 
+		defined by year and month.
 
 		Args:
+			option (str): The option of export. (Ref.)
 			y (int): The year of the data.
 			m (int): The month of the data.
+			outputdir (str): The directory to store the output data.
+			header (bool): The option to export header.
+			file (str): The string added to the name of the exported file.
+			Ref: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_csv.html
 		
 		Return:
-			no returns.	
+			function exports csv file but with no returns.	
 		"""
 		filename=self._getfilename(y, m)
 		if file != None:
@@ -338,7 +358,7 @@ class wrdsdata:
 			m (int): The month of the data.
 		
 		Return:
-			no returns.	
+			function prints out results but with no returns.	
 		"""
 		print("shape: ",self.returndata(y, m).shape)
 		print("head: ",self.returndata(y, m).head())
