@@ -1,20 +1,40 @@
 from wrdsdata import wrdsdata
 
 class sp(wrdsdata):
+	"""
+	This is a class inherited from class wrds to process s&p500 data, s&p500 list.
+
+	Args: 
+           startyear (int): The startyear of the desired output data.
+           endyear (int): The endyear of the desired output data.
+           month (int): The month of the desired output data; 0 means every month.
+           file (str): the file name of the desired output data.
+	"""
 	def __init__(self, startyear, endyear, month, file):
 		"""
 		The constructor for sp class.
 
-		Parameters: 
-           startyear (int): The startyear of the desired output data
-           endyear (int): The endyear of the desired output data
-           month (int): The month of the desired output data; 0 means every month
-           file (str): the file name of the desired output data
+		Args: 
+           startyear (int): The startyear of the desired output data.
+           endyear (int): The endyear of the desired output data.
+           month (int): The month of the desired output data; 0 means every month.
+           file (str): the file name of the desired output data.
 		"""
 		wrdsdata.__init__(self, startyear, endyear, month, file)
 		pass
 
 	def extractym(self, data, extractcolname, newcolname):
+		"""
+		The function for creating a year month column by extracting from date column.
+
+		Args:
+			data (DataFrame): The data with date column and to create new column.
+			extractcolname (str): The name of the column to be extracted from.
+			newcolname (str): The name of the column to be created.
+
+		Returns:
+			no returns.
+		"""
 		self.spdata = data
 		self.spdata[newcolname] = (self.spdata[extractcolname]/100).astype(int)
 		pass
