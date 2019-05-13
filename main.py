@@ -18,6 +18,7 @@ crsp_outpath = '/Volumes/FD-CW/crsp/'
 crsp_inpath = '/Volumes/FD-CW/crsp/'
 master_inpath = '~/Dropbox/invariance-cw/data/master/'
 master_outpath = '/Volumes/FD-CW/combined/'
+
 # part I: split crps
 # initialization
 c = crsp.crsp(beginyear, endyear, month, file='crsp')
@@ -37,7 +38,7 @@ for y in range(beginyear, endyear+1):
 			for m in range(4,13):
 				print('{a}-{b}:'.format(a=y,b=m))
 				c.readdata(datadir=crsp_inpath, y=y, m=m)
-				c.mergedata(data=s.TimeIntervalIndexing(y, m), y=y, m=m, how='left', key='PERMNO')
+				c.mergedata(data=s.TimeIntervalIndexing(y, m, 'sm', 'em'), y=y, m=m, how='left', key='PERMNO')
 				c.addsp(y=y, m=m)
 				c.dropcol(col=list(c.returndata(y, m).columns)[-5:-1], y=y, m=m)
 				c.checkspdup(y=y, m=m)
@@ -80,5 +81,6 @@ for y in range(beginyear, endyear+1):
 		c.changecolname(old='CUSIP_y', new='CUSIP_9', y=y, m=m)
 		c.export(option='w', y=y, m=m, outputdir=master_outpath, header=True, file='combined_master_')
 
+# part IV
 # print head and shape of data
 # c.print(2008,2)
