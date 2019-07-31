@@ -41,7 +41,7 @@ class master(wrdsdata):
 		"""
 		filename=self._getfilename(y, m)
 		cusip_nan = self.d[filename][self.d[filename]['CUSIP'].isna()]
-		if !cusip_nan.empty:
+		if cusip_nan.empty==False:
 			with open(outputdir + filename +'_CUSIP_NaN.csv', 'w') as csvFile:
 				cusip_nan.to_csv(csvFile, header=True, index=False)
 		self.d[filename] = self.d[filename].dropna(subset=['CUSIP'])
