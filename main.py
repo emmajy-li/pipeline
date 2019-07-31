@@ -10,15 +10,15 @@ beginyear = 2017
 endyear = 2017
 month = 0 # if all month then 0
 
-crsp10yr_inpath = '/Volumes/FD-CW/'
+crsp10yr_inpath = '/Volumes/Elements/invariance/'
 crsp10yr_filename = 'crsp_10yr.csv'
-sp_inpath = '/Volumes/FD-CW/'
+sp_inpath = '/Volumes/Elements/invariance/'
 sp_filename = 'dsp500list.csv'
-crsp_outpath = '/Volumes/FD-CW/crsp/'
-crsp_inpath = '/Volumes/FD-CW/crsp/'
-crspsp_inpath = '/Volumes/FD-CW/crsp_sp/'
-master_inpath = '/Volumes/FD-CW/master/'
-master_outpath = '/Volumes/FD-CW/combined/'
+crsp_outpath = '/Volumes/Elements/invariance/crsp/'
+crsp_inpath = '/Volumes/Elements/invariance/crsp/'
+crspsp_inpath = '/Volumes/Elements/invariance/crsp_sp/'
+master_inpath = '/Volumes/Elements/invariance/master/'
+master_outpath = '/Volumes/Elements/invariance/combined/'
 
 # part I: split crps
 # initialization
@@ -59,7 +59,7 @@ mst = master.master(beginyear, endyear, month, file='master')
 def merge_crsp_master(y,m):
 	print('{a}-{b}:'.format(a=y,b=m))
 	mst.readdata(datadir=master_inpath, y=y, m=m)
-	mst.add8CUSIP(y=y, m=m, newcolname='CUSIP_8') # add eight digit cusip to master data
+	mst.add8CUSIP(y=y, m=m, newcolname='CUSIP_8', outputdir=master_outpath) # add eight digit cusip to master data
 	c.readdata(datadir=crspsp_inpath, y=y, m=m)
 	c.mergedata(data=mst.returndata(y, m), y=y, m=m, how='outer', left_on=['CUSIP','date'], right_on=['CUSIP_8', 'DATE'])
 	c.dropcol(col=['DATE','CUSIP_8'], y=y, m=m)
