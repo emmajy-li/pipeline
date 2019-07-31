@@ -88,7 +88,7 @@ class wrdsdata:
 		"""
 		filename=self._getfilename(y, m)
 		self.d[filename] = pd.DataFrame()
-		self.d[filename] = pd.read_csv('.'.join([datadir+filename, 'csv']))
+		self.d[filename] = pd.read_csv('.'.join([datadir+filename, 'csv']), encoding='cp1252')
 		pass
 
 	def returndata(self, y, m):
