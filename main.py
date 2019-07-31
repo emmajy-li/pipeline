@@ -57,9 +57,10 @@ for y in range(beginyear, endyear+1):
 mst = master.master(beginyear, endyear, month, file='master')
 
 def merge_crsp_master(y,m):
-	print('{a}-{b}:'.format(a=y,b=m))
+	print('{a}-{b}:\nReading master data'.format(a=y,b=m))
 	mst.readdata(datadir=master_inpath, y=y, m=m)
-	mst.add8CUSIP(y=y, m=m, newcolname='CUSIP_8', outputdir=master_outpath) # add eight digit cusip to master data
+	mst.add8CUSIP(y=y, m=m, newcolname='CUSIP_8', outputdir=master_inpath) # add eight digit cusip to master data
+	print('Reading crsp_sp data')
 	c.readdata(datadir=crspsp_inpath, y=y, m=m)
 	c.mergedata(data=mst.returndata(y, m), y=y, m=m, how='outer', left_on=['CUSIP','date'], right_on=['CUSIP_8', 'DATE'])
 	c.dropcol(col=['DATE','CUSIP_8'], y=y, m=m)
@@ -75,7 +76,3 @@ for y in range(beginyear, endyear+1):
 	else:
 		m = month
 		merge_crsp_master(y,m)
-
-# part IV
-# print head and shape of data
-# c.print(2008,2)
