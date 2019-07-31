@@ -39,6 +39,6 @@ class master(wrdsdata):
 		Returns:
 			no returns.
 		"""
-		filename=self.getfilename(y, m)
+		filename=self._getfilename(y, m)
 		self.d[filename][newcolname] = [value[:8] for value in self.d[filename]['CUSIP']]
 		pass
