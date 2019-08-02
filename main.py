@@ -6,7 +6,7 @@ import crsp
 import master
 
 # input
-beginyear = 2017
+beginyear = 2011
 endyear = 2017
 month = 0 # if all month then 0
 
@@ -41,12 +41,12 @@ def merge_crsp_sp(y, m):
 	c.addsp(y=y, m=m)
 	c.dropcol(col=list(c.returndata(y, m).columns)[-5:-1], y=y, m=m)
 	c.checkspdup(y=y, m=m)
-	c.export(option='w', y=y, m=m, header=True)
+	c.export(option='w', y=y, m=m, outputdir=crspsp_inpath, header=True)
 	pass
 
 for y in range(beginyear, endyear+1):
 		if month==0:
-			for m in range(4,13):
+			for m in range(1,13):
 				merge_crsp_sp(y,m)
 		else:
 			m = month
